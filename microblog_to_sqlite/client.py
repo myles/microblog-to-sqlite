@@ -33,8 +33,20 @@ class MicroBlogClient:
 
         return prepped, response
 
-    def posts(self, username: str) -> Tuple[PreparedRequest, Response]:
+    def get_posts(self, username: str) -> Tuple[PreparedRequest, Response]:
         """
         JSON posts written by the given user.
         """
         return self.request("GET", f"{self.base_url}/posts/{username}")
+
+    def get_bookshelves(self) -> Tuple[PreparedRequest, Response]:
+        """
+        Bookshelves for the current authenticated user.
+        """
+        return self.request("GET", f"{self.base_url}/books/bookshelves")
+
+    def get_books_in_bookshelf(self, bookshelf_id: int) -> Tuple[PreparedRequest, Response]:
+        """
+        Books in the bookshelf for the current authenticated user.
+        """
+        return self.request("GET", f"{self.base_url}/books/bookshelves/{bookshelf_id}")

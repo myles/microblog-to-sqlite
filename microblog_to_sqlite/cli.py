@@ -73,9 +73,62 @@ def posts(db_path, auth):
     Save posts for the authenticated user.
     """
     db = service.open_database(db_path)
-    client = service.microblog_client(auth)
+    client = service.get_client(auth)
 
     username = service.get_username(auth)
 
     feed = service.get_posts(username, client)
     service.save_posts(db, feed)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def bookshelves(db_path, auth):
+    """
+    Save bookshelves for the authenticated user.
+    """
+    db = service.open_database(db_path)
+    client = service.get_client(auth)
+
+    feed = service.get_bookshelves(client)
+    service.save_bookshelves(db, feed)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def books(db_path, auth):
+    """
+    Save bookshelves for the authenticated user.
+    """
+    db = service.open_database(db_path)
+    client = service.get_client(auth)
+
+    for bookshelf_id in service.get_saved_bookshelf_ids(db):
+        feed = service.get_books_in_bookshelf(bookshelf_id, client)
+        service.save_books(db, feed, bookshelf_id)
