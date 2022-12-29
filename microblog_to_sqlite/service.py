@@ -1,7 +1,8 @@
+import datetime
 import json
 from pathlib import Path
 from typing import Any, Dict, List
-import datetime
+
 from sqlite_utils import Database
 
 from .client import MicroBlogClient
@@ -46,7 +47,9 @@ def build_database(db: Database):
             pk="id",
             foreign_keys=(("author_id", "authors", "id"),),
         )
-        db["posts"].enable_fts(["content_text", "content_html"], create_triggers=True)
+        db["posts"].enable_fts(
+            ["content_text", "content_html"], create_triggers=True
+        )
 
     posts_indexes = {tuple(i.columns) for i in db["posts"].indexes}
     if ("author_id",) not in posts_indexes:
@@ -92,7 +95,9 @@ def build_database(db: Database):
             ),
         )
 
-    bookshelves_books_indexes = {tuple(i.columns) for i in db["bookshelves_books"].indexes}
+    bookshelves_books_indexes = {
+        tuple(i.columns) for i in db["bookshelves_books"].indexes
+    }
     if ("bookshelf_id",) not in bookshelves_books_indexes:
         db["bookshelves_books"].create_index(["bookshelf_id"])
     if ("book_id",) not in bookshelves_books_indexes:
@@ -193,12 +198,7 @@ def transformer_bookshelf(bookshelf: Dict[str, Any]):
     Transformer a Micro.blog bookshelf, so it can be safely saved to the SQLite
     database.
     """
-    to_remove = [
-        k
-        for k in bookshelf.keys()
-        if k
-        not in ("id", "title")
-    ]
+    to_remove = [k for k in bookshelf.keys() if k not in ("id", "title")]
     for key in to_remove:
         del bookshelf[key]
 
@@ -240,20 +240,15 @@ def transformer_book(book: Dict[str, Any]):
     Transformer a Micro.blog book, so it can be safely saved to the SQLite
     database.
     """
-    authors = book.get('authors', [])
-    isbn = book.get('_microblog', {}).get('isbn', '')
+    authors = book.get("authors", [])
+    isbn = book.get("_microblog", {}).get("isbn", "")
 
-    to_remove = [
-        k
-        for k in book.keys()
-        if k
-        not in ("id", "title")
-    ]
+    to_remove = [k for k in book.keys() if k not in ("id", "title")]
     for key in to_remove:
         del book[key]
 
-    book['authors'] = ', '.join([a['name'] for a in authors])
-    book['isbn'] = isbn
+    book["authors"] = ", ".join([a["name"] for a in authors])
+    book["isbn"] = isbn
 
 
 def save_books(
@@ -273,11 +268,14 @@ def save_books(
     db["books"].insert_all(books, pk="id", alter=True, replace=True)
 
     first_seen = datetime.datetime.utcnow().isoformat()
-    db["bookshelves_books"].insert_all((
-        {
-            "bookshelf_id": bookshelf_id,
-            "book_id": book['id'],
-            "first_seen": first_seen,
-        }
-        for book in books
-    ), ignore=True)
+    db["bookshelves_books"].insert_all(
+        (
+            {
+                "bookshelf_id": bookshelf_id,
+                "book_id": book["id"],
+                "first_seen": first_seen,
+            }
+            for book in books
+        ),
+        ignore=True,
+    )

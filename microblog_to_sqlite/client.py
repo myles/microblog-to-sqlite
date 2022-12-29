@@ -45,8 +45,12 @@ class MicroBlogClient:
         """
         return self.request("GET", f"{self.base_url}/books/bookshelves")
 
-    def get_books_in_bookshelf(self, bookshelf_id: int) -> Tuple[PreparedRequest, Response]:
+    def get_books_in_bookshelf(
+        self, bookshelf_id: int
+    ) -> Tuple[PreparedRequest, Response]:
         """
         Books in the bookshelf for the current authenticated user.
         """
-        return self.request("GET", f"{self.base_url}/books/bookshelves/{bookshelf_id}")
+        return self.request(
+            "GET", f"{self.base_url}/books/bookshelves/{bookshelf_id}"
+        )
